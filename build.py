@@ -31,7 +31,7 @@ def main():
     from version import VERSION
 
     ico = BUILD / "DeepNoise.ico"
-    art = ROOT / "assets" / "icon-source.png"  # app artwork (headphones), 1254 px master
+    art = ROOT / "assets" / "app-icon" / "deepnoise-source.png"  # app artwork (headphones), 1254 px master
     desktop.save_ico(ico, art)
     desktop.app_icon(256, art).save(ROOT / "ui" / "icon.png")  # window/page icon and tray base
     sep = ";"  # PyInstaller --add-data separator on Windows

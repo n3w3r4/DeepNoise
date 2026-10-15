@@ -38,7 +38,7 @@ LOG = DATA / "logs" / "deepnoise.log"
 STATIC = {"/": "index.html", "/index.html": "index.html", "/flyout.html": "flyout.html",
           "/api.js": "api.js", "/style.css": "style.css", "/i18n.js": "i18n.js", "/icon.png": "icon.png"}
 TYPES = {".png": "image/png", ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8"}
-desktop.ICON_SOURCE = UI / "icon.png"  # tray icon base (built from assets/icon-source.png)
+desktop.ICON_SOURCE = UI / "icon.png"  # tray icon base (built from assets/app-icon/deepnoise-source.png)
 DEVICE_KEYS = ("input", "output", "monitor", "spk_input", "spk_output")
 
 

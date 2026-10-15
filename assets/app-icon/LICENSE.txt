@@ -1,0 +1,14 @@
+DeepNoise app icon (deepnoise-source.png and every file derived from it: ui/icon.png and the
+generated DeepNoise.ico).
+
+AI-generated artwork commissioned for this project by the project maintainer, who confirmed on
+2026-10-15 that it may be used as DeepNoise's icon. It contains no third-party logos or marks.
+To the extent the project contributors hold rights in it, it is licensed like the rest of
+DeepNoise, under either of
+
+  * Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+  * MIT license (https://opensource.org/licenses/MIT)
+
+at your option.
+
+Regenerate the derived files with build.py (desktop.app_icon / desktop.save_ico).
