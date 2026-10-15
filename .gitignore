@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Build output
+build/
+dist/
+
+# Downloaded native dependencies (scripts/fetch_deps.py)
+vendor/
+
+# Local user data when running from source
+settings.json
+instance.json
+logs/
+webview/
+*.wav

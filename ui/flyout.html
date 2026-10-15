@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeepNoise — quick</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Tray flyout: same faceplate, compact. The window itself is frameless (styled from app.py). */
+  html, body { height: 100%; }
+  body { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+  header { padding: 12px 14px 10px; gap: 10px; }
+  .wordmark { font-size: 19px; }
+  .icon-key { margin-left: auto; width: 30px; height: 30px; display: grid; place-items: center; padding: 0;
+    border-radius: 7px; border: 1px solid var(--rule); background: linear-gradient(var(--face-hi), var(--face)); cursor: pointer; color: var(--ink-2); }
+  .icon-key:hover { color: var(--ink); }
+  .scope { margin: 0 12px; border-radius: 10px; }
+  .scope canvas { height: 46px; margin-top: 6px; }
+  .scope-read { padding: 0 12px 7px; }
+  .scope-read .big { font-size: 20px; }
+  .scope-state { top: 14px; }
+  .bigmute { margin: 10px 12px 2px; width: calc(100% - 24px); justify-content: center; padding: 9px 12px; font-size: 14px; }
+  .q { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
+  .q + .q { border-top: 1px solid var(--rule); }
+  .q .t { font-weight: 600; }
+  .q .d { font-size: 12px; color: var(--ink-2); }
+  .q .switch { margin-left: auto; }
+  .group { border-top: 1px solid var(--rule); padding: 10px 14px 4px; }
+  .group h2 { margin: 0 0 8px; font-size: 13.5px; font-weight: 600; }
+  .row { grid-template-columns: 86px minmax(0, 1fr); margin-bottom: 7px; }
+  .bottom { display: flex; gap: 8px; padding: 10px 12px 12px; border-top: 1px solid var(--rule); }
+  .bottom .key:first-child { flex: 1; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">DeepNoise</div>
+  <div class="led-status" id="status" role="status"><span class="led"></span><span data-i18n="status_starting"></span></div>
+  <button class="icon-key" id="open" type="button" data-i18n-title="open_app" data-i18n-aria="open_app">
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M8 1h5v5M13 1 7 7M11 9v4H1V3h4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+  </button>
+</header>
+
+<div class="scope" id="scope">
+  <canvas id="scope-canvas" aria-hidden="true"></canvas>
+  <div class="scope-state" id="scope-state"></div>
+  <div class="scope-read"><div><span class="big" id="removed">—</span> <span id="removed-lbl" data-i18n="removed_lbl"></span></div></div>
+</div>
+
+<button class="mute-key bigmute" id="mute" type="button" data-i18n-title="mute_title">
+  <span class="led" id="mute-led"></span><span id="mute-txt" data-i18n="mute"></span><kbd>Ctrl+Alt+M</kbd>
+</button>
+
+<div class="q" style="margin-top:6px">
+  <div><div class="t" data-i18n="q_my_noise"></div><div class="d" id="nc-hint"></div></div>
+  <label class="switch"><input type="checkbox" id="enabled" data-i18n-aria="q_my_noise"><span></span></label>
+</div>
+<div class="q">
+  <div><div class="t" data-i18n="q_others"></div><div class="d" id="spk-hint"></div></div>
+  <label class="switch"><input type="checkbox" id="spk-on" data-i18n-aria="q_others"><span></span></label>
+</div>
+
+<div class="group">
+  <h2 data-i18n="q_devices"></h2>
+  <div class="row"><label for="input" data-i18n="lbl_mic"></label><select id="input"></select></div>
+  <div class="row"><label for="output" data-i18n="lbl_send"></label><select id="output"></select></div>
+  <div class="row" id="spk-row"><label for="spk-output" data-i18n="lbl_spk_out"></label><select id="spk-output"></select></div>
+</div>
+
+<div class="bottom">
+  <button class="key" id="open2" type="button" data-i18n="open_app"></button>
+  <button class="key" id="quit" type="button" data-i18n="quit"></button>
+</div>
+
+<script src="i18n.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+let state = null;
+
+async function api(path, body) {
+  const r = await fetch(path, body !== undefined ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const data = await r.json();
+  if (data.devices) render(data);
+  return data;
+}
+
+function fillSelect(sel, items, current, tag) {
+  if (document.activeElement === sel) return;
+  sel.innerHTML = "";
+  if (current && !items.some((d) => d.name === current)) items = [{ name: current, missing: true }, ...items];
+  for (const d of items) {
+    const o = document.createElement("option");
+    o.value = d.name;
+    o.textContent = d.name + (d.missing ? t("tag_missing") : tag ? tag(d) : "");
+    if (d.name === current) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+function render(s) {
+  state = s;
+  const lang = pickLang(s.settings.lang);
+  if (lang !== LANG) { LANG = lang; applyStatic(); }
+  const sel = s.selected, st = s.settings;
+  fillSelect($("input"), [...s.devices.inputs].sort((a, b) => b.raw - a.raw), sel.input, (d) => d.raw ? "" : t("tag_virtual"));
+  fillSelect($("output"), [...s.devices.outputs].sort((a, b) => b.cable - a.cable), sel.output, (d) => d.cable ? t("tag_vmic") : "");
+  fillSelect($("spk-output"), s.devices.outputs.filter((d) => !d.cable), sel.spk_output);
+  $("spk-row").classList.toggle("hidden", !st.spk_enabled);
+  $("enabled").checked = st.enabled;
+  $("nc-hint").textContent = t(st.enabled ? "nc_on" : "nc_off");
+  const canSpk = !!sel.spk_input && !!sel.spk_output;
+  $("spk-on").checked = st.spk_enabled; $("spk-on").disabled = !canSpk && !st.spk_enabled;
+  $("spk-hint").textContent = canSpk || st.spk_enabled ? t("sec_spk_what") : t("q_others_setup");
+  setStatus(s);
+}
+
+function setStatus(s) {
+  const led = $("status").querySelector(".led"), txt = $("status").querySelector("span:last-child");
+  let cls = "", msg = t("st_stopped");
+  if (s.status === "erro") { msg = t("st_error"); cls = "amber"; }
+  else if (s.status === "aguardando") { msg = t("st_waiting", { dev: (s.waiting_for || t("st_device")).replace(/\s*\(.*\)$/, "") }); cls = "amber"; }
+  else if (s.muted) { msg = t("muted"); }
+  else if (s.status === "ativo") { msg = t(s.settings.enabled ? "st_live_on" : "st_live_off"); cls = "on"; }
+  led.className = "led " + cls; txt.textContent = msg;
+  $("mute").classList.toggle("muted", !!s.muted);
+  $("mute-txt").textContent = t(s.muted ? "muted" : "mute");
+  $("mute-led").className = "led " + (!s.muted && s.status === "ativo" ? "on" : "");
+  $("scope").classList.toggle("dim", !!s.muted || s.status !== "ativo");
+  $("scope-state").textContent = s.muted ? t("scope_muted") : s.status === "aguardando" ? t("scope_waiting") : "";
+}
+
+const select = (key) => (e) => api("/api/select", { [key]: e.target.value });
+$("input").onchange = select("input");
+$("output").onchange = select("output");
+$("spk-output").onchange = select("spk_output");
+$("enabled").onchange = (e) => api("/api/settings", { enabled: e.target.checked });
+$("spk-on").onchange = (e) => api("/api/settings", { spk_enabled: e.target.checked });
+$("mute").onclick = () => api("/api/mute", {});
+$("open").onclick = $("open2").onclick = () => fetch("/api/window/open", { method: "POST" });
+$("quit").onclick = () => fetch("/api/quit", { method: "POST" });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") fetch("/api/window/hide-flyout", { method: "POST" }); });
+
+// mini scope: last 4 s
+const N = 80, hist = { raw: new Float32Array(N).fill(-120), clean: new Float32Array(N).fill(-120) };
+const canvas = $("scope-canvas"), ctx = canvas.getContext("2d");
+let dirty = true;
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function draw() {
+  const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+  const mid = h / 2, amp = h * 0.47, a = (d) => Math.pow(Math.max(0, Math.min(1, (d + 75) / 75)), 1.6) * amp;
+  const band = (arr, color) => {
+    ctx.fillStyle = color; ctx.beginPath();
+    for (let i = 0; i < N; i++) ctx.lineTo((i / (N - 1)) * w, mid - a(arr[i]));
+    for (let i = N - 1; i >= 0; i--) ctx.lineTo((i / (N - 1)) * w, mid + a(arr[i]));
+    ctx.closePath(); ctx.fill();
+  };
+  band(hist.raw, css("--trace-raw")); band(hist.clean, css("--trace-clean"));
+}
+(function frame() { if (dirty) { draw(); dirty = false; } requestAnimationFrame(frame); })();
+
+const removed = [];
+function listenMeters() {
+  const es = new EventSource("/api/meters");
+  es.onmessage = (ev) => {
+    const m = JSON.parse(ev.data);
+    hist.raw.copyWithin(0, 1); hist.clean.copyWithin(0, 1);
+    hist.raw[N - 1] = m.running ? m.in_db : -120;
+    hist.clean[N - 1] = m.running && !m.muted ? m.out_db : -120;
+    dirty = true;
+    if (m.running && m.in_db > -85) { removed.push(Math.max(0, m.in_db - m.out_db)); if (removed.length > 40) removed.shift(); }
+    if (!m.running || m.muted) { $("removed").textContent = "—"; $("removed-lbl").textContent = t("removed_lbl"); }
+    else if (m.in_db <= -85) { $("removed").textContent = t("silence"); $("removed-lbl").textContent = t("silence_lbl"); }
+    else if (removed.length) {
+      $("removed").textContent = Math.round(removed.reduce((x, y) => x + y, 0) / removed.length) + " dB";
+      $("removed-lbl").textContent = t("removed_lbl");
+    }
+    if (state && (m.status !== state.status || m.muted !== state.muted)) {
+      Object.assign(state, { status: m.status, muted: m.muted, running: m.running, waiting_for: m.waiting_for });
+      setStatus(state);
+    }
+  };
+  es.onerror = () => { es.close(); setTimeout(listenMeters, 1000); };
+}
+LANG = pickLang(null); applyStatic();
+setInterval(() => api("/api/state"), 4000);
+api("/api/state").then(listenMeters);
+</script>
+</body>
+</html>
