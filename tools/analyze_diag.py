@@ -52,17 +52,17 @@ def repeats(x, win=0.05, search=2.0, thr=0.97, min_db=-55):
 
 
 base = sys.argv[1]
-mic, df, out = (load(f"{base}-{n}.wav") for n in ("1-microfone", "2-deepfilternet", "3-saida"))
+mic, df, out = (load(f"{base}-{n}.wav") for n in ("1-mic", "2-deepfilternet", "3-output"))
 n = len(mic)
-print(f"duração {n / SR:.1f} s")
-print("\n  t(s)   mic dB   DF dB   saída dB   lag mic->DF (ms)")
+print(f"duration {n / SR:.1f} s")
+print("\n  t(s)   mic dB   DF dB   out dB   lag mic->DF (ms)")
 for t in range(0, int(n / SR)):
     a, b, c = (s[t * SR:(t + 1) * SR] for s in (mic, df, out))
     lag = lag_ms(mic[t * SR:(t + 1) * SR + int(0.6 * SR)], df[t * SR:(t + 1) * SR + int(0.6 * SR)]) if db(a) > -50 else float("nan")
     print(f"  {t:4d}  {db(a):7.1f}  {db(b):7.1f}  {db(c):8.1f}   {lag:6.1f}")
 
-for name, sig in (("saída", out), ("DeepFilterNet", df), ("microfone", mic)):
+for name, sig in (("output", out), ("DeepFilterNet", df), ("mic", mic)):
     h = repeats(sig)
-    print(f"\ntrechos repetidos em {name}: {len(h)}")
+    print(f"\nrepeated segments in {name}: {len(h)}")
     for t, back, r, lv in h[:25]:
-        print(f"  em {t:6.2f}s repete áudio de {back * 1000:6.0f} ms antes (corr {r:.3f}, {lv:.0f} dB)")
+        print(f"  at {t:6.2f}s repeats audio from {back * 1000:6.0f} ms earlier (corr {r:.3f}, {lv:.0f} dB)")

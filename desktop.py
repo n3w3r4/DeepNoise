@@ -103,7 +103,7 @@ class Tray:
     def refresh(self):
         """Update icon/tooltip/menu when the state changed (call ~1 Hz)."""
         st = self.get_state()
-        kind = "wait" if st["status"] != "ativo" else "muted" if st["muted"] else "on" if st["enabled"] else "off"
+        kind = "wait" if st["status"] != "running" else "muted" if st["muted"] else "on" if st["enabled"] else "off"
         key = (kind, st["lang"], st["muted"], st["enabled"])
         if key == self._last:
             return

@@ -1,0 +1,11 @@
+DeepNoise
+Copyright (c) 2026 Ruan Schaefer and the DeepNoise contributors.
+Original source code: MIT OR Apache-2.0, at your option.
+
+DeepNoise uses third-party software under separate terms, including DeepFilterNet,
+LiveKit/WebRTC, PortAudio, and pystray (LGPL-3.0). See THIRD_PARTY_NOTICES.md
+and the licenses directory supplied in release packages.
+
+PhotoCraft inspired the repository organization. No PhotoCraft branding is used.
+DeepNoise is an independent project, not affiliated with or endorsed by Krisp,
+VB-Audio, Microsoft, or the authors of its dependencies.

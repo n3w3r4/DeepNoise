@@ -3,7 +3,7 @@
 <h1 align="center">DeepNoise</h1>
 
 <p align="center">Real-time AI noise cancellation for Windows: for your microphone and for the people you're talking to.<br>
-<a href="#português">Português abaixo</a></p>
+<a href="docs/README.pt-BR.md">Português (Brasil)</a></p>
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Requirements
 
-- Windows 10 or 11, 64-bit (uses the Edge WebView2 runtime that ships with Windows).
+- Windows 10 or 11, 64-bit (uses the Edge WebView2 runtime (install it from Microsoft if missing)).
 - For the virtual microphone and the incoming-audio cleaner: **VB-CABLE** and **VB-Audio Hi-Fi Cable**
   (donationware by [VB-Audio](https://vb-audio.com)).
 
@@ -76,34 +76,17 @@ When running from source, settings and logs stay in the repo folder (git-ignored
 
 ## License
 
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the components DeepNoise uses.
+Original DeepNoise code is licensed under **MIT OR Apache-2.0**, at your option.
+See [LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE), and [NOTICE](NOTICE).
+Dependencies keep their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
----
+## Contributing and project information
 
-## Português
+- [Contributing](CONTRIBUTING.md) and [architecture](docs/ARCHITECTURE.md)
+- [Security and privacy](SECURITY.md)
+- [Roadmap](ROADMAP.md), [changelog](CHANGELOG.md), and [release process](docs/RELEASING.md)
+- [Attribution](ATTRIBUTION.md) and [Brazilian Portuguese guide](docs/README.pt-BR.md)
 
-**DeepNoise** cancela ruído em tempo real no Windows, no seu microfone e no som de quem fala com você.
-
-- **Seu ruído**: teclado, ventilador, palmas, rua. Supressão neural com DeepFilterNet3, frames de 10 ms a 48 kHz, ~40 ms de atraso.
-- **Ruído dos outros** nas chamadas, **cancelamento de eco** e **microfone virtual** para Discord, Zoom, Teams e OBS.
-- Ajuste fino, travar volume do microfone, atalho global **Ctrl+Alt+M**, ícone na bandeja com **ações rápidas**,
-  iniciar com o Windows e reconexão automática de dispositivos. Interface em português e inglês.
-
-### Instalar
-
-1. Baixe `DeepNoise-<versão>-win64.zip` em [Releases](../../releases) e descompacte.
-2. Opcional, para usar em outros apps: clique com o botão direito em `install-drivers.ps1` → *Executar com o PowerShell*,
-   aceite os instaladores da VB-Audio e reinicie o Windows.
-3. Abra o `DeepNoise.exe`. Ele fica na bandeja; fechar a janela não encerra o app.
-
-### Usar no Discord / Zoom / Teams
-
-| No DeepNoise | No app de chamada |
-|---|---|
-| **Sua voz → Enviar para:** `CABLE Input` | **Microfone:** `CABLE Output (VB-Audio Virtual Cable)` |
-| **Quem fala com você → Apps tocam em:** `Hi-Fi Cable Output`, **Você ouve em:** seu fone | **Alto-falante:** `Hi-Fi Cable Input (VB-Audio Hi-Fi Cable)` |
-
-### Compilar
-
-Os mesmos comandos de [Build from source](#build-from-source). O VB-CABLE e o Hi-Fi Cable são donationware da
-VB-Audio (www.vb-cable.com) e não vêm no repositório: o `scripts\install-drivers.ps1` baixa do site oficial e confere a assinatura.
+Run `python -m unittest discover -s tests -v`, `node tests/test_ui.cjs`, and
+`python -m ruff check .` before contributing. Install the checker with
+`python -m pip install -r requirements-dev.txt`.

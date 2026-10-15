@@ -188,7 +188,7 @@ class AudioEngine:
         self.beats = {}
         self.xruns = 0
         self.muted = False
-        self.status = "parado"  # parado | ativo | aguardando | erro
+        self.status = "stopped"  # stopped | running | waiting | error
         self.error = None
         self.waiting_for = None
         self._meter_lock = threading.Lock()
@@ -247,13 +247,13 @@ class AudioEngine:
             if s["spk_enabled"]:
                 self._start_speaker()
             self.apply()
-            self.status = "ativo"
+            self.status = "running"
         except LookupError as e:  # a selected device is not present (unplugged)
             self.stop()
-            self.status, self.waiting_for = "aguardando", str(e)
+            self.status, self.waiting_for = "waiting", str(e)
         except Exception as e:
             self.stop()
-            self.status, self.error = "erro", str(e)
+            self.status, self.error = "error", str(e)
 
     def _open(self, name, kind):
         idx = resolve(name, kind)
@@ -276,7 +276,7 @@ class AudioEngine:
             try:
                 self.aec = EchoCanceller()
             except Exception as e:  # livekit missing: run without AEC
-                print(f"AEC indisponível: {e}", file=sys.stderr)
+                print(f"AEC unavailable: {e}", file=sys.stderr)
                 self.aec = False
         self.far.clear()
         self.mon.clear()
@@ -365,19 +365,19 @@ class AudioEngine:
             df.close()
         self.dfs = []
         self.beats = {}
-        if self.status == "ativo":
-            self.status = "parado"
+        if self.status == "running":
+            self.status = "stopped"
 
     def watchdog(self):
         """Main thread, ~1 Hz. Returns a reason string if it restarted, else None."""
         now = time.monotonic()
-        if self.status in ("aguardando", "erro"):
+        if self.status in ("waiting", "error"):
             if now < getattr(self, "_next_retry", 0):
                 return None
             self._next_retry = now + 3  # start() re-inits PortAudio, so a re-plugged device is found
             before = self.waiting_for or self.error
             self.start()
-            return f"reconexão ({before}) -> {self.status}"
+            return f"reconnect ({before}) -> {self.status}"
         for name, st in list(self.streams.items()):
             beat = self.beats.get(name, now)
             if not st.active or now - beat > 1.5:
@@ -407,7 +407,7 @@ class AudioEngine:
 
     @property
     def running(self):
-        return self.status == "ativo"
+        return self.status == "running"
 
     def meters(self):
         with self._meter_lock:

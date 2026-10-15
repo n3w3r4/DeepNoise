@@ -101,8 +101,8 @@ const I18N = {
     autostart_t: "Start with Windows", autostart_d: "Opens in the system tray when you sign in to Windows.",
   },
 };
-let LANG = "pt-BR";
-const t = (key, vars = {}) => (I18N[LANG][key] ?? I18N["pt-BR"][key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+let LANG = pickLang(null);
+const t = (key, vars = {}) => (I18N[LANG][key] ?? I18N["en-US"][key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
 function pickLang(setting) {
   if (setting && I18N[setting]) return setting;
   return (navigator.language || "").toLowerCase().startsWith("pt") ? "pt-BR" : "en-US";

@@ -90,13 +90,13 @@ def main():
     quiet = np.argsort(np.mean(frames(x) ** 2, 1))[: len(frames(x)) // 5]
     nf_in, nf_out = db(frames(x)[quiet]), db(frames(y)[quiet])
     bm = np.array(block_ms)
-    print(f"audio {len(x) / SAMPLE_RATE:.1f} s | bloco: média {bm.mean():.2f} ms, p99 {np.percentile(bm, 99):.2f} ms, pior {bm.max():.2f} ms (orçamento 10 ms)")
-    print(f"latência do plugin: {lag} amostras = {lag / 48:.0f} ms")
-    print(f"nível total: {db(x):.1f} dB -> {db(y):.1f} dB")
-    print(f"ruído de fundo (pausas): {nf_in:.1f} dB -> {nf_out:.1f} dB  (redução {nf_in - nf_out:.1f} dB)")
+    print(f"audio {len(x) / SAMPLE_RATE:.1f} s | block: mean {bm.mean():.2f} ms, p99 {np.percentile(bm, 99):.2f} ms, worst {bm.max():.2f} ms (budget 10 ms)")
+    print(f"plugin latency: {lag} samples = {lag / 48:.0f} ms")
+    print(f"overall level: {db(x):.1f} dB -> {db(y):.1f} dB")
+    print(f"noise floor (pauses): {nf_in:.1f} dB -> {nf_out:.1f} dB  (reduction {nf_in - nf_out:.1f} dB)")
     if args.out:
         write_wav(args.out, y)
-        print(f"salvo: {args.out}")
+        print(f"saved: {args.out}")
 
 
 if __name__ == "__main__":

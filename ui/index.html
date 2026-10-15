@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en-US">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -141,6 +141,7 @@
 </footer>
 
 <script src="i18n.js"></script>
+<script src="api.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 let state = null;
@@ -148,7 +149,7 @@ let lastGate = -50, lastHpf = 100, lastLock = 80;
 const NONE = "";
 
 async function api(path, body) {
-  const r = await fetch(path, body !== undefined ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const r = await localFetch(path, body !== undefined ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
   const data = await r.json();
   if (data.devices) render(data);
   return data;
@@ -247,17 +248,17 @@ function render(s) {
 function setStatus(s) {
   const led = $("status").querySelector(".led"), txt = $("status").querySelector("span:last-child");
   let cls = "", msg = t("st_stopped");
-  if (s.status === "erro") { msg = t("st_error"); cls = "amber"; }
-  else if (s.status === "aguardando") { msg = t("st_waiting", { dev: (s.waiting_for || t("st_device")).replace(/\s*\(.*\)$/, "") }); cls = "amber"; }
+  if (s.status === "error") { msg = t("st_error"); cls = "amber"; }
+  else if (s.status === "waiting") { msg = t("st_waiting", { dev: (s.waiting_for || t("st_device")).replace(/\s*\(.*\)$/, "") }); cls = "amber"; }
   else if (s.muted) { msg = t("muted"); }
-  else if (s.status === "ativo") { msg = t(s.settings.enabled ? "st_live_on" : "st_live_off"); cls = "on"; }
+  else if (s.status === "running") { msg = t(s.settings.enabled ? "st_live_on" : "st_live_off"); cls = "on"; }
   led.className = "led " + cls; txt.textContent = msg;
   $("status").title = s.error || s.waiting_for || "";
   $("mute").classList.toggle("muted", !!s.muted);
   $("mute-txt").textContent = t(s.muted ? "muted" : "mute");
-  $("mute-led").className = "led " + (!s.muted && s.status === "ativo" ? "on" : "");
-  $("scope").classList.toggle("dim", !!s.muted || s.status !== "ativo");
-  $("scope-state").textContent = s.muted ? t("scope_muted") : s.status === "aguardando" ? t("scope_waiting") : s.status === "erro" ? (s.error || t("st_error")) : "";
+  $("mute-led").className = "led " + (!s.muted && s.status === "running" ? "on" : "");
+  $("scope").classList.toggle("dim", !!s.muted || s.status !== "running");
+  $("scope-state").textContent = s.muted ? t("scope_muted") : s.status === "waiting" ? t("scope_waiting") : s.status === "error" ? (s.error || t("st_error")) : "";
 }
 
 // ---------- controls ----------
@@ -305,7 +306,7 @@ $("calibrate").onclick = async () => {
 };
 $("diag").onclick = async () => {
   const b = $("diag"); b.disabled = true; b.textContent = t("diag_saving");
-  try { await fetch("/api/diag", { method: "POST" }); b.textContent = t("diag_saved"); } catch { b.textContent = t("diag_fail"); }
+  try { await localFetch("/api/diag", { method: "POST" }); b.textContent = t("diag_saved"); } catch { b.textContent = t("diag_fail"); }
   setTimeout(() => { b.disabled = false; b.textContent = t("diag"); }, 2500);
 };
 try { if (localStorage.getItem("adv") === "1") $("adv").open = true; } catch {}

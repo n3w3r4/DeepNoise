@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en-US">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -74,12 +74,13 @@
 </div>
 
 <script src="i18n.js"></script>
+<script src="api.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 let state = null;
 
 async function api(path, body) {
-  const r = await fetch(path, body !== undefined ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const r = await localFetch(path, body !== undefined ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
   const data = await r.json();
   if (data.devices) render(data);
   return data;
@@ -118,16 +119,16 @@ function render(s) {
 function setStatus(s) {
   const led = $("status").querySelector(".led"), txt = $("status").querySelector("span:last-child");
   let cls = "", msg = t("st_stopped");
-  if (s.status === "erro") { msg = t("st_error"); cls = "amber"; }
-  else if (s.status === "aguardando") { msg = t("st_waiting", { dev: (s.waiting_for || t("st_device")).replace(/\s*\(.*\)$/, "") }); cls = "amber"; }
+  if (s.status === "error") { msg = t("st_error"); cls = "amber"; }
+  else if (s.status === "waiting") { msg = t("st_waiting", { dev: (s.waiting_for || t("st_device")).replace(/\s*\(.*\)$/, "") }); cls = "amber"; }
   else if (s.muted) { msg = t("muted"); }
-  else if (s.status === "ativo") { msg = t(s.settings.enabled ? "st_live_on" : "st_live_off"); cls = "on"; }
+  else if (s.status === "running") { msg = t(s.settings.enabled ? "st_live_on" : "st_live_off"); cls = "on"; }
   led.className = "led " + cls; txt.textContent = msg;
   $("mute").classList.toggle("muted", !!s.muted);
   $("mute-txt").textContent = t(s.muted ? "muted" : "mute");
-  $("mute-led").className = "led " + (!s.muted && s.status === "ativo" ? "on" : "");
-  $("scope").classList.toggle("dim", !!s.muted || s.status !== "ativo");
-  $("scope-state").textContent = s.muted ? t("scope_muted") : s.status === "aguardando" ? t("scope_waiting") : "";
+  $("mute-led").className = "led " + (!s.muted && s.status === "running" ? "on" : "");
+  $("scope").classList.toggle("dim", !!s.muted || s.status !== "running");
+  $("scope-state").textContent = s.muted ? t("scope_muted") : s.status === "waiting" ? t("scope_waiting") : "";
 }
 
 const select = (key) => (e) => api("/api/select", { [key]: e.target.value });
@@ -137,9 +138,9 @@ $("spk-output").onchange = select("spk_output");
 $("enabled").onchange = (e) => api("/api/settings", { enabled: e.target.checked });
 $("spk-on").onchange = (e) => api("/api/settings", { spk_enabled: e.target.checked });
 $("mute").onclick = () => api("/api/mute", {});
-$("open").onclick = $("open2").onclick = () => fetch("/api/window/open", { method: "POST" });
-$("quit").onclick = () => fetch("/api/quit", { method: "POST" });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") fetch("/api/window/hide-flyout", { method: "POST" }); });
+$("open").onclick = $("open2").onclick = () => localFetch("/api/window/open", { method: "POST" });
+$("quit").onclick = () => localFetch("/api/quit", { method: "POST" });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") localFetch("/api/window/hide-flyout", { method: "POST" }); });
 
 // mini scope: last 4 s
 const N = 80, hist = { raw: new Float32Array(N).fill(-120), clean: new Float32Array(N).fill(-120) };

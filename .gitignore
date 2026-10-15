@@ -16,3 +16,7 @@ instance.json
 logs/
 webview/
 *.wav
+
+# Local analysis retained separately from the product
+/krisp-rea-relatorio.md
+/.ruff_cache/

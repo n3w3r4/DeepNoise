@@ -1,7 +1,8 @@
 # Third-party notices
 
 DeepNoise is built on the projects below. The release `.exe` bundles the runtime components listed
-in the first table; their license texts are available at the linked projects.
+in the first table; release builds collect available installed license files into `licenses/` and record versions in
+`DEPENDENCIES.json`. This inventory also includes build-environment tools; review native transitive notices before publishing.
 
 | Component | Use in DeepNoise | License |
 |---|---|---|
@@ -23,4 +24,16 @@ in the first table; their license texts are available at the linked projects.
 downloads them from VB-Audio's official server, checks the digital signature and runs their installers.
 If you find them useful, please support VB-Audio: https://shop.vb-audio.com
 
-Microsoft Edge **WebView2 Runtime** ships with Windows 10/11 and is used, not redistributed.
+Microsoft Edge **WebView2 Runtime** is used, not redistributed. Install it from Microsoft if missing.
+
+## pystray (LGPL-3.0)
+
+The frozen application ships pystray as editable source in `_internal/pystray`.
+Its GPL and LGPL license texts are copied to `licenses/pystray`. You may modify or
+replace that compatible library and restart DeepNoise; see docs/RELEASING.md.
+
+## Release review
+
+Python metadata does not necessarily contain every license for statically linked native
+dependencies. Review the DeepFilterNet and LiveKit/WebRTC native dependency trees and
+their notices before public distribution. The project license does not relicense them.

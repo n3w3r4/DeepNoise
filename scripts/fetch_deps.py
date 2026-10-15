@@ -34,20 +34,20 @@ def sha256(path):
 def fetch(dep):
     dest = dep["dest"]
     if dest.exists() and dest.stat().st_size == dep["size"] and sha256(dest) == dep["sha256"]:
-        print(f"ok (já baixado): {dest.relative_to(ROOT)}")
+        print(f"ok (already present): {dest.relative_to(ROOT)}")
         return
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
-    print(f"baixando {dep['name']}\n  {dep['url']}")
+    print(f"downloading {dep['name']}\n  {dep['url']}")
     with urllib.request.urlopen(dep["url"], timeout=60) as r, open(tmp, "wb") as f:
         while chunk := r.read(1 << 20):
             f.write(chunk)
     size, digest = tmp.stat().st_size, sha256(tmp)
     if size != dep["size"] or digest != dep["sha256"]:
         tmp.unlink()
-        sys.exit(f"ERRO: arquivo diferente do esperado (tamanho {size}, sha256 {digest}); nada foi instalado")
+        sys.exit(f"ERROR: unexpected file (size {size}, sha256 {digest}); nothing was installed")
     tmp.replace(dest)
-    print(f"ok: {dest.relative_to(ROOT)} ({size / 1e6:.1f} MB, sha256 conferido)")
+    print(f"ok: {dest.relative_to(ROOT)} ({size / 1e6:.1f} MB, sha256 verified)")
 
 
 if __name__ == "__main__":

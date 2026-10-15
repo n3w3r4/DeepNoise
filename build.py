@@ -8,6 +8,8 @@ resources: ui/, vendor/deep_filter_ladspa.dll, livekit's FFI library, PortAudio,
 pythonnet (windows use the Edge WebView2 runtime that ships with Windows 10/11).
 """
 
+import argparse
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -19,6 +21,10 @@ DIST = ROOT / "dist"
 
 
 def main():
+    global DIST
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dist-dir", type=Path, default=DIST)
+    DIST = parser.parse_args().dist_dir.resolve()
     BUILD.mkdir(exist_ok=True)
     subprocess.run([sys.executable, str(ROOT / "scripts" / "fetch_deps.py")], check=True)
     import desktop
@@ -41,6 +47,7 @@ def main():
         "--collect-all", "pythonnet",
         "--collect-data", "sounddevice",     # bundled PortAudio DLL
         "--hidden-import", "pystray._win32",
+        "--additional-hooks-dir", str(ROOT / "packaging" / "hooks"),
         "--exclude-module", "tkinter",
         str(ROOT / "app.py"),
     ]
@@ -48,13 +55,18 @@ def main():
     subprocess.run(cmd, check=True)
 
     app_dir = DIST / "DeepNoise"
-    for doc in ("README.md", "THIRD_PARTY_NOTICES.md", "LICENSE"):
+    for doc in ("README.md", "THIRD_PARTY_NOTICES.md", "LICENSE", "LICENSE-MIT", "LICENSE-APACHE", "NOTICE", "ATTRIBUTION.md", "SECURITY.md", "CONTRIBUTING.md", "ROADMAP.md", "CHANGELOG.md"):
         if (ROOT / doc).exists():
             shutil.copy2(ROOT / doc, app_dir / doc)
     shutil.copy2(ROOT / "scripts" / "install-drivers.ps1", app_dir / "install-drivers.ps1")
+    shutil.copytree(ROOT / "docs", app_dir / "docs", dirs_exist_ok=True)
+    from scripts.collect_licenses import collect
+    collect(app_dir)
     size = sum(f.stat().st_size for f in app_dir.rglob("*") if f.is_file())
     zip_path = shutil.make_archive(str(DIST / f"DeepNoise-{VERSION}-win64"), "zip", DIST, "DeepNoise")
-    print(f"\nOK: {app_dir / 'DeepNoise.exe'}  ({size / 1e6:.0f} MB na pasta)\nzip: {zip_path}")
+    digest = hashlib.sha256(Path(zip_path).read_bytes()).hexdigest()
+    (DIST / "SHA256SUMS.txt").write_text(f"{digest}  {Path(zip_path).name}\n", encoding="utf-8")
+    print(f"\nOK: {app_dir / 'DeepNoise.exe'}  ({size / 1e6:.0f} MB folder)\nzip: {zip_path}")
 
 
 if __name__ == "__main__":

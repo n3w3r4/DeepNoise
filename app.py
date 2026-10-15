@@ -26,6 +26,7 @@ import numpy as np
 import desktop
 import winaudio
 import windows
+from local_api import allowed_request, read_json_body
 from engine import DEFAULTS, AudioEngine, is_cable, is_raw_mic
 
 FROZEN = getattr(sys, "frozen", False)
@@ -35,7 +36,7 @@ UI = ROOT / "ui"
 CONFIG = DATA / "settings.json"
 LOG = DATA / "logs" / "deepnoise.log"
 STATIC = {"/": "index.html", "/index.html": "index.html", "/flyout.html": "flyout.html",
-          "/style.css": "style.css", "/i18n.js": "i18n.js", "/icon.png": "icon.png"}
+          "/api.js": "api.js", "/style.css": "style.css", "/i18n.js": "i18n.js", "/icon.png": "icon.png"}
 TYPES = {".png": "image/png", ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8"}
 desktop.ICON_SOURCE = UI / "icon.png"  # tray icon base (built from assets/icon-source.png)
 DEVICE_KEYS = ("input", "output", "monitor", "spk_input", "spk_output")
@@ -137,7 +138,7 @@ class App:
         with self.lock:
             if "autostart" in data:
                 desktop.set_autostart(bool(data.pop("autostart")))
-                log(f"iniciar com o Windows: {desktop.get_autostart()}")
+                log(f"start with Windows: {desktop.get_autostart()}")
             self.engine.apply(**data)
             if self.engine.needs_restart(data):
                 self.run_main(self.engine.start)
@@ -147,7 +148,7 @@ class App:
         snap = self.engine.diag.snapshot()
         stamp = time.strftime("%Y%m%d-%H%M%S")
         paths = []
-        for row, name in zip(snap, ("1-microfone", "2-deepfilternet", "3-saida")):
+        for row, name in zip(snap, ("1-mic", "2-deepfilternet", "3-output")):
             p = LOG.parent / f"diag-{stamp}-{name}.wav"
             with wave.open(str(p), "wb") as w:
                 w.setnchannels(1)
@@ -155,7 +156,7 @@ class App:
                 w.setframerate(48000)
                 w.writeframes((np.clip(row, -1, 1) * 32767).astype(np.int16).tobytes())
             paths.append(str(p))
-        log(f"diagnóstico salvo: {paths[0]} (+2)")
+        log(f"diagnostics saved: {paths[0]} (+2)")
         return paths
 
     # --- periodic work (main thread) ------------------------------------------------------
@@ -170,7 +171,7 @@ class App:
             if not hasattr(self, "_vol"):
                 self._vol = winaudio.EndpointVolume()
             if self._vol.lock(e.devices["input"], float(lock)):
-                log(f"volume do microfone restaurado para {lock}% (outro app tinha mudado)")
+                log(f"mic volume restored to {lock}% (another app changed it)")
 
     def tick_slow(self):
         """~0.3 Hz (audio thread): device hot-plug and which apps use our devices."""
@@ -179,12 +180,12 @@ class App:
             gone = {n for n, _ in self.endpoints - eps}
             new = {n for n, _ in eps - self.endpoints}
             self.endpoints = eps
-            log(f"dispositivos mudaram: +{sorted(new)} -{sorted(gone)}")
+            log(f"devices changed: +{sorted(new)} -{sorted(gone)}")
             e = self.engine
             selected = {v for k, v in e.devices.items() if v}
-            if e.status != "ativo" or gone & selected:
+            if e.status != "running" or gone & selected:
                 e.start()
-                log(f"reiniciado por mudança de dispositivo -> {e.status}")
+                log(f"restarted after a device change -> {e.status}")
         e = self.engine
         caps = {n for n, f in self.endpoints if f == "capture"}
         voice = winaudio.cable_capture_side(e.devices["output"], caps)
@@ -217,7 +218,15 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _allowed(self):
+        if not allowed_request(self.headers, self.server.server_address[1], self.command):
+            self._json({"error": "forbidden"}, 403)
+            return False
+        return True
+
     def do_GET(self):
+        if not self._allowed():
+            return
         if self.path in STATIC:
             f = UI / STATIC[self.path]
             body = f.read_bytes()
@@ -245,19 +254,23 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": "not found"}, 404)
 
     def do_POST(self):
-        length = int(self.headers.get("Content-Length") or 0)
-        data = json.loads(self.rfile.read(length) or b"{}")
+        if not self._allowed():
+            return
+        try:
+            data = read_json_body(self.headers, self.rfile)
+        except ValueError as exc:
+            return self._json({"error": str(exc)}, 400)
         try:
             if self.path == "/api/select":
                 APP.select(data)
             elif self.path == "/api/settings":
                 APP.settings(data)
             elif self.path == "/api/mute":
-                log(f"mudo: {APP.engine.toggle_mute()}")
+                log(f"muted: {APP.engine.toggle_mute()}")
             elif self.path == "/api/calibrate":
                 result = APP.engine.calibrate_voice()
                 APP.save()
-                log(f"calibração de voz: {result}")
+                log(f"voice calibration: {result}")
                 return self._json({**APP.state(), "calibration": result})
             elif self.path == "/api/window/open":
                 if APP.win:
@@ -295,7 +308,7 @@ def redirect_logs():
     faulthandler.enable(f, all_threads=True)  # native crashes (access violations) leave a Python stack in the log
     from version import VERSION
 
-    print(f"=== {time.strftime('%Y-%m-%d %H:%M:%S')} DeepNoise {VERSION} iniciado ===", file=sys.stderr)
+    print(f"=== {time.strftime('%Y-%m-%d %H:%M:%S')} DeepNoise {VERSION} started ===", file=sys.stderr)
 
 
 INSTANCE = DATA / "instance.json"
@@ -313,10 +326,10 @@ def single_instance(tray_only):
         if not tray_only:
             import urllib.request
 
-            urllib.request.urlopen(urllib.request.Request(f"http://127.0.0.1:{port}/api/window/open", data=b"{}"), timeout=3)
-        log(f"já está rodando (porta {port}); janela pedida à instância existente")
+            urllib.request.urlopen(urllib.request.Request(f"http://127.0.0.1:{port}/api/window/open", data=b"{}", headers={"Content-Type": "application/json", "X-DeepNoise-Request": "1"}), timeout=3)
+        log(f"already running (port {port}); asked the running instance to show its window")
     except Exception as e:
-        log(f"já está rodando; não consegui avisar a instância existente: {e}")
+        log(f"already running; could not reach the running instance: {e}")
     return False
 
 
@@ -339,15 +352,15 @@ def main():
 
     APP = App()
     # Always registered; the "hotkey" setting only gates the action, so toggling it applies immediately.
-    hk = winaudio.Hotkey(lambda: APP.engine.settings["hotkey"] and log(f"mudo (atalho): {APP.engine.toggle_mute()}"))
+    hk = winaudio.Hotkey(lambda: APP.engine.settings["hotkey"] and log(f"muted (hotkey): {APP.engine.toggle_mute()}"))
     APP.hotkey_ok = hk.ok
-    log(f"atalho Ctrl+Alt+M: {'ok' if hk.ok else 'indisponível (outro app usa)'}")
+    log(f"hotkey Ctrl+Alt+M: {'ok' if hk.ok else 'unavailable (used by another app)'}")
 
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
     server.daemon_threads = True
     url = f"http://127.0.0.1:{server.server_address[1]}/"
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    log(f"interface em {url}")
+    log(f"interface at {url}")
     if not args.no_window:
         INSTANCE.write_text(json.dumps({"port": server.server_address[1], "pid": os.getpid()}), encoding="utf-8")
 
@@ -364,7 +377,7 @@ def main():
         tray = desktop.Tray(
             on_quick=APP.win.toggle_flyout,
             on_open=APP.win.open_main,
-            on_mute=lambda: log(f"mudo (bandeja): {e.toggle_mute()}"),
+            on_mute=lambda: log(f"muted (tray): {e.toggle_mute()}"),
             on_toggle_nc=lambda: APP.settings({"enabled": not e.settings["enabled"]}),
             on_quit=APP.quit,
             get_state=lambda: {"lang": e.settings["lang"], "muted": e.muted, "enabled": e.settings["enabled"],
@@ -377,7 +390,7 @@ def main():
         audio.join(timeout=5)
         tray.stop()
     server.shutdown()
-    log("encerrado")
+    log("stopped")
 
 
 def audio_loop(tray):
@@ -388,7 +401,7 @@ def audio_loop(tray):
     comtypes.CoInitializeEx(comtypes.COINIT_MULTITHREADED)
     APP.endpoints = winaudio.active_endpoints()
     APP.engine.start()
-    log(f"áudio: {APP.engine.status} {APP.engine.error or ''}")
+    log(f"audio: {APP.engine.status} {APP.engine.error or ''}")
     last_fast = last_slow = last_trend = 0.0
     last_xruns, samples = 0, []
     try:
@@ -406,7 +419,7 @@ def audio_loop(tray):
                 if tray:
                     tray.refresh()
                 if APP.engine.xruns != last_xruns:
-                    log(f"stream: {APP.engine.xruns - last_xruns} falha(s) de buffer (total {APP.engine.xruns})")
+                    log(f"stream: {APP.engine.xruns - last_xruns} buffer dropout(s) (total {APP.engine.xruns})")
                     last_xruns = APP.engine.xruns
             if now - last_slow >= 3:
                 last_slow = now
@@ -416,8 +429,8 @@ def audio_loop(tray):
                 last_trend = now
                 ins = sorted(x[0] for x in samples)
                 v = APP.mic_volume
-                log(f"tendência: vol mic {v[0] if v else '?'}% | ruído mic {ins[len(ins) // 10]:.1f} dB | "
-                    f"saída média {sum(x[1] for x in samples) / len(samples):.1f} dB | mudo {APP.engine.muted}")
+                log(f"trend: mic volume {v[0] if v else '?'}% | mic noise floor {ins[len(ins) // 10]:.1f} dB | "
+                    f"output avg {sum(x[1] for x in samples) / len(samples):.1f} dB | muted {APP.engine.muted}")
                 samples.clear()
     finally:
         APP.engine.stop()

@@ -32,8 +32,8 @@ def main():
 
     dev = resolve(args.input or default_mic(), "input")
     if dev is None:
-        raise SystemExit(f"microfone não encontrado: {args.input}")
-    print(f"entrada: {sd.query_devices(dev)['name']}")
+        raise SystemExit(f"microphone not found: {args.input}")
+    print(f"input: {sd.query_devices(dev)['name']}")
     df = DeepFilterMono()
     gain = 10 ** (args.gain / 20)
     blocks, xruns, cb_ms = [], 0, []
@@ -47,7 +47,7 @@ def main():
         cb_ms.append((time.perf_counter() - t) * 1000)
 
     wasapi = sd.WasapiSettings(auto_convert=True)
-    print(f"gravando {args.seconds:.0f} s — FALE AGORA (pause no meio para ter ruído sozinho)")
+    print(f"recording {args.seconds:.0f} s: talk now, with a pause in the middle (noise only)")
     with sd.InputStream(samplerate=SAMPLE_RATE, blocksize=HOP, dtype="float32", device=dev,
                         channels=1, latency="low", extra_settings=wasapi, callback=callback):
         for s in range(int(args.seconds)):
@@ -65,7 +65,7 @@ def main():
     SAMPLES.mkdir(exist_ok=True)
     write_wav(str(SAMPLES / "mic_original.wav"), dry)
     write_wav(str(SAMPLES / "mic_denoised.wav"), wet)
-    print(f"blocos {len(blocks)} | falhas de stream {xruns} | callback pior {max(cb_ms):.2f} ms")
+    print(f"blocks {len(blocks)} | stream dropouts {xruns} | worst callback {max(cb_ms):.2f} ms")
     print(f"total: original {db(dry):.1f} dB | filtrado {db(wet):.1f} dB")
     print(f"salvos: {SAMPLES / 'mic_original.wav'} e {SAMPLES / 'mic_denoised.wav'}")
 
