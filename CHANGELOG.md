@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 â€” unreleased
+## 0.1.0 - unreleased
 
 - Initial Windows desktop application with microphone and incoming-audio suppression.
 - English and Brazilian Portuguese UI, tray, audio routing, and diagnostics.
@@ -15,3 +15,6 @@
 - Excluded unused ASIO and non-x64 PortAudio DLLs from Windows packages.
 - Locked build dependencies by hash and added source archives, release verification,
   and a draft-only GitHub publication flow for n3w3r4/Deep-Noise.
+- Documentation organized like PhotoCraft: app icon under `assets/app-icon/` with its own
+  README and license, attribution table by path, development guide, decision log, an expanded
+  `AGENTS.md`, and a demo-data overview screenshot in the README.
