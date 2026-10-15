@@ -12,11 +12,15 @@ reopen them. A watchdog (called from the main thread) restarts everything when a
 dies or stops calling back (device removed, format changed, exclusive mode taken...).
 """
 
+import os
 import sys
 import threading
 import time
 
 import numpy as np
+if getattr(sys, "frozen", False):
+    os.environ.pop("SD_ENABLE_ASIO", None)
+
 import sounddevice as sd
 
 from ladspa_df import SAMPLE_RATE, DeepFilterMono

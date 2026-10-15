@@ -2,12 +2,13 @@
 
 DeepNoise is built on the projects below. The release `.exe` bundles the runtime components listed
 in the first table; release builds collect available installed license files into `licenses/` and record versions in
-`DEPENDENCIES.json`. This inventory also includes build-environment tools; review native transitive notices before publishing.
+`DEPENDENCIES.json`. This inventory also includes build-environment tools. See [the native review](docs/LICENSE_AUDIT.md)
+for scope, source provenance, and the unresolved LiveKit redistribution item.
 
 | Component | Use in DeepNoise | License |
 |---|---|---|
 | [DeepFilterNet](https://github.com/Rikorose/DeepFilterNet) v0.5.6 (LADSPA plugin + DeepFilterNet3 model) | Neural noise suppression | MIT or Apache-2.0 |
-| [LiveKit Python SDK](https://github.com/livekit/python-sdks) (WebRTC audio processing) | Echo cancellation (AEC3) | Apache-2.0 (WebRTC: BSD-3-Clause) |
+| [LiveKit Python SDK](https://github.com/livekit/python-sdks) (WebRTC audio processing) | Echo cancellation (AEC3) | Apache-2.0 plus WebRTC and bundled third-party terms, including LGPL libsoxr; see native review |
 | [sounddevice](https://github.com/spatialaudio/python-sounddevice) + [PortAudio](https://www.portaudio.com) | Audio I/O (WASAPI) | MIT |
 | [NumPy](https://numpy.org) | Signal buffers | BSD-3-Clause |
 | [SciPy](https://scipy.org) | High-pass filter | BSD-3-Clause |
@@ -25,6 +26,9 @@ downloads them from VB-Audio's official server, checks the digital signature and
 If you find them useful, please support VB-Audio: https://shop.vb-audio.com
 
 Microsoft Edge **WebView2 Runtime** is used, not redistributed. Install it from Microsoft if missing.
+The **WebView2 SDK assemblies and loader** are bundled through pywebview. Their matching
+1.0.3856.49 LICENSE and NOTICE are included under `licenses/native/`.
+Only the non-ASIO Windows x64 PortAudio DLL is bundled.
 
 ## pystray (LGPL-3.0)
 
@@ -34,6 +38,8 @@ replace that compatible library and restart DeepNoise; see docs/RELEASING.md.
 
 ## Release review
 
-Python metadata does not necessarily contain every license for statically linked native
-dependencies. Review the DeepFilterNet and LiveKit/WebRTC native dependency trees and
-their notices before public distribution. The project license does not relicense them.
+See `docs/LICENSE_AUDIT.md` for the completed inventory review and remaining binary
+redistribution work. In particular, LiveKit statically links libsoxr under LGPL-2.1-or-later
+and includes FFmpeg-related code through WebRTC. The source/relink requirements are
+not satisfied merely by including notice texts. A complete reconstruction package
+has not yet been validated. Original project licensing does not override those terms.

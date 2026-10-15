@@ -1,0 +1,94 @@
+[
+  {
+    "file": "LiveKit-APACHE-2.0.txt",
+    "source": "https://raw.githubusercontent.com/livekit/rust-sdks/5a656c4bc4bc5c4f7fad17ab69044db3b487dfeb/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  },
+  {
+    "file": "LiveKit-NOTICE.txt",
+    "source": "https://raw.githubusercontent.com/livekit/rust-sdks/5a656c4bc4bc5c4f7fad17ab69044db3b487dfeb/NOTICE",
+    "sha256": "6d0f7c5e0deb284362296c5da110dd353831da2e67ca77cb5abc051b951b0fac"
+  },
+  {
+    "file": "libsoxr-LICENCE.txt",
+    "source": "https://raw.githubusercontent.com/livekit/rust-sdks/5a656c4bc4bc5c4f7fad17ab69044db3b487dfeb/soxr-sys/src/LICENCE",
+    "sha256": "dc98676341fdcd29d9f279c9679d6a75288785b174ded8d1b2e316c366166135"
+  },
+  {
+    "file": "LGPL-2.1.txt",
+    "source": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/n7.1/COPYING.LGPLv2.1",
+    "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe"
+  },
+  {
+    "file": "PortAudio-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/PortAudio/portaudio/v19.7.0/LICENSE.txt",
+    "sha256": "ec52a1952d701f94e5135719a47376da4ee0b4a0201f1cafb49f61db6480ac3d"
+  },
+  {
+    "file": "OpenSSL-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/openssl/openssl/openssl-3.5.7/LICENSE.txt",
+    "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+  },
+  {
+    "file": "libffi-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/libffi/libffi/v3.4.4/LICENSE",
+    "sha256": "2c9c2acb9743e6b007b91350475308aee44691d96aa20eacef8e199988c8c388"
+  },
+  {
+    "file": "expat-COPYING.txt",
+    "source": "https://raw.githubusercontent.com/python/cpython/v3.14.6/Modules/expat/COPYING",
+    "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+  },
+  {
+    "file": "xz-COPYING.txt",
+    "source": "https://raw.githubusercontent.com/tukaani-project/xz/v5.2.5/COPYING",
+    "sha256": "bcb02973ef6e87ea73d331b3a80df7748407f17efdb784b61b47e0e610d3bb5c"
+  },
+  {
+    "file": "zlib-ng-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/zlib-ng/zlib-ng/2.2.4/LICENSE.md",
+    "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee"
+  },
+  {
+    "file": "zstd-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/facebook/zstd/v1.5.7/LICENSE",
+    "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8"
+  },
+  {
+    "file": "zstd-COPYING.txt",
+    "source": "https://raw.githubusercontent.com/facebook/zstd/v1.5.7/COPYING",
+    "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+  },
+  {
+    "file": "WebView2-LICENSE.txt",
+    "source": "https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.3856.49",
+    "sha256": "0af8f1b807512aae39c2ac1aa4d0cae65cabecb6fd554b8439a5162a0d6eca55"
+  },
+  {
+    "file": "WebView2-NOTICE.txt",
+    "source": "https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.3856.49",
+    "sha256": "106423785c5b7eba0a8e61d1837f2132e9c828e20ad530f565d981c1df60dd90"
+  },
+  {
+    "component": "DeepFilterNet Rust dependency notice superset",
+    "lockfile_sha256": "bd24ae608740b97dcfecaecb93d4952a9bab8d0f0e9c72d510a0461187ce3726",
+    "packages_in_conservative_closure": 292,
+    "registry_archives_verified": 285
+  },
+  {
+    "component": "LiveKit Rust dependency notice superset",
+    "lockfile_sha256": "b6beab6e8cdba354a0ef45f3f4c084e9751e690ccd900b5eea347fe45dd730b4",
+    "packages_in_conservative_closure": 542,
+    "registry_archives_verified": 522
+  },
+  {
+    "file": "proxy_tools-LICENSE.txt.txt",
+    "source": "https://github.com/jtushman/proxy_tools/blob/master/LICENSE.txt",
+    "sha256": "a428fb8a2e762af3eb0a6edbbb88e9b42ccfee80fd9b423958bcacf9b9abbfe4"
+  },
+  {
+    "file": "rstest-LICENCE-MIT.txt",
+    "source": "https://github.com/la10736/rstest/blob/7ac624c3a54de3d7a1506441863562371c5a2359/LICENCE-MIT",
+    "sha256": "c82c0821eb1d0e751a78f84574382895c67e525566439114079d49958b51f2c5"
+  }
+]

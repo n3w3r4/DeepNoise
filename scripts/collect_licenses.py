@@ -24,7 +24,7 @@ def collect(app_dir):
             target = dest / name / f"{len(copied):03d}-{source.name}"
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
-            copied.append(str(target.relative_to(app_dir)))
+            copied.append(target.relative_to(app_dir).as_posix())
         inventory.append({"name": name, "version": dist.version, "license_files": copied})
     python_license = Path(sys.base_prefix) / "LICENSE.txt"
     if python_license.is_file():

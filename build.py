@@ -45,7 +45,6 @@ def main():
         "--collect-all", "webview",          # pywebview (WebView2 via WinForms)
         "--collect-all", "clr_loader",       # pythonnet runtime loader
         "--collect-all", "pythonnet",
-        "--collect-data", "sounddevice",     # bundled PortAudio DLL
         "--hidden-import", "pystray._win32",
         "--additional-hooks-dir", str(ROOT / "packaging" / "hooks"),
         "--exclude-module", "tkinter",
@@ -62,6 +61,13 @@ def main():
     shutil.copytree(ROOT / "docs", app_dir / "docs", dirs_exist_ok=True)
     from scripts.collect_licenses import collect
     collect(app_dir)
+    from scripts.collect_sources import collect as collect_sources
+    from scripts.native_inventory import collect as collect_native
+    collect_sources(app_dir)
+    collect_native(app_dir)
+    (app_dir / "ui").mkdir(exist_ok=True)
+    shutil.copy2(ROOT / "ui/icon.png", app_dir / "ui/icon.png")
+    shutil.copy2(ROOT / "docs/RELEASE_NOTES.md", DIST / "RELEASE_NOTES.md")
     size = sum(f.stat().st_size for f in app_dir.rglob("*") if f.is_file())
     zip_path = shutil.make_archive(str(DIST / f"DeepNoise-{VERSION}-win64"), "zip", DIST, "DeepNoise")
     digest = hashlib.sha256(Path(zip_path).read_bytes()).hexdigest()

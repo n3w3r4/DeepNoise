@@ -21,13 +21,13 @@
 
 ## Requirements
 
-- Windows 10 or 11, 64-bit (uses the Edge WebView2 runtime (install it from Microsoft if missing)).
+- Windows 10 or 11, 64-bit with the Edge WebView2 runtime; install the runtime from Microsoft if missing.
 - For the virtual microphone and the incoming-audio cleaner: **VB-CABLE** and **VB-Audio Hi-Fi Cable**
   (donationware by [VB-Audio](https://vb-audio.com)).
 
 ## Install (release)
 
-1. Download `DeepNoise-<version>-win64.zip` from [Releases](../../releases) and unzip it anywhere.
+1. Download `DeepNoise-<version>-win64.zip` from [Releases](https://github.com/n3w3r4/Deep-Noise/releases) and unzip it anywhere.
 2. Optional, for use in other apps: right-click `install-drivers.ps1` → *Run with PowerShell*,
    accept the VB-Audio installers, restart Windows.
 3. Run `DeepNoise.exe`. It lives in the system tray; closing the window keeps it running.
@@ -43,7 +43,7 @@
 
 ```powershell
 py -3.14 -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe -m pip install --require-hashes -r requirements-lock.txt
 .venv\Scripts\python.exe scripts\fetch_deps.py     # DeepFilterNet plugin -> vendor\ (SHA-256 checked)
 run-dev.cmd                                        # run from source
 .venv\Scripts\python.exe build.py                  # dist\DeepNoise\DeepNoise.exe + dist\DeepNoise-<version>-win64.zip
@@ -85,6 +85,7 @@ Dependencies keep their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_N
 - [Contributing](CONTRIBUTING.md) and [architecture](docs/ARCHITECTURE.md)
 - [Security and privacy](SECURITY.md)
 - [Roadmap](ROADMAP.md), [changelog](CHANGELOG.md), and [release process](docs/RELEASING.md)
+- [Native license review](docs/LICENSE_AUDIT.md) and [publication handoff](docs/PUBLISHING.md)
 - [Attribution](ATTRIBUTION.md) and [Brazilian Portuguese guide](docs/README.pt-BR.md)
 
 Run `python -m unittest discover -s tests -v`, `node tests/test_ui.cjs`, and

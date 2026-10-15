@@ -9,9 +9,9 @@
 
 ## Before the first public release
 
-- Review transitive native dependency notices.
+- Complete the LiveKit LGPL/FFmpeg corresponding-source and relink work in docs/LICENSE_AUDIT.md.
 - Validate Windows microphone/speaker routing and reconnect behavior on real hardware.
-- Configure the GitHub remote and private vulnerability reporting.
+- Enable private vulnerability reporting on n3w3r4/Deep-Noise (remote configured).
 - Run CI and review the draft release, source archive, and checksums.
 
 ## Future work (not commitments)

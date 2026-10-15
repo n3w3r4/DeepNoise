@@ -1,0 +1,14 @@
+[
+  {
+    "name": "livekit-rust-5a656c4.tar.gz",
+    "url": "https://codeload.github.com/livekit/rust-sdks/tar.gz/5a656c4bc4bc5c4f7fad17ab69044db3b487dfeb",
+    "sha256": "ccdb541f46116b36ebebce8546235a1a147659be671a919df745a61567d9eb02",
+    "description": "LiveKit Rust SDK, including vendored libsoxr; submodules/WebRTC dependencies are not included."
+  },
+  {
+    "name": "pystray-0.19.5.tar.gz",
+    "url": "https://codeload.github.com/moses-palmer/pystray/tar.gz/refs/tags/v0.19.5",
+    "sha256": "2ab6bd15c14b400c9e8271a82c9de8adc0f1a0cacfc14080bdd4fb42bb88ec92",
+    "description": "Original pystray library source (LGPL-3.0)."
+  }
+]

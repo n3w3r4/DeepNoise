@@ -3,3 +3,6 @@
 *.ps1 text eol=crlf
 *.png binary
 *.ico binary
+
+# Preserve imported license text and its source hashes verbatim.
+licenses/native/*.txt -text -whitespace

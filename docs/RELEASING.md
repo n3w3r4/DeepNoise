@@ -1,13 +1,16 @@
 # Releasing DeepNoise
 
 1. Complete the checks in CONTRIBUTING.md and the hardware smoke test below.
-2. Keep artwork provenance in ATTRIBUTION.md current and review license coverage for
-   transitive native code in DeepFilterNet and LiveKit/WebRTC. Automatically collected
-   Python metadata is a useful inventory, not proof that all native notices are present.
-3. Update `version.py` and CHANGELOG.md, commit the reviewed source, and configure
-   the intended GitHub remote. Never include the separate Krisp report/prototype.
+2. Review `docs/LICENSE_AUDIT.md`, including the outstanding LiveKit source/relink
+   issue. Keep artwork provenance in ATTRIBUTION.md current.
+3. Update `version.py` and CHANGELOG.md, commit the reviewed source, and verify
+   `origin` is `https://github.com/n3w3r4/Deep-Noise.git`. Never include the separate Krisp report/prototype.
 4. Run `python build.py`. If the installed app is running, use
    `python build.py --dist-dir dist/candidate` to avoid overwriting its files.
+   After building, run `python scripts/verify_release.py dist/DeepNoise-0.1.0-win64.zip`
+   (adjust the path for a candidate build), then `python scripts/package_source.py`
+   from a clean committed tree. Both scripts accept the documented destination paths;
+   use `--dist-dir dist/candidate` with `package_source.py` for a candidate build.
 5. Inspect the ZIP, `SHA256SUMS.txt`, notices, dependency manifest, and editable
    `_internal/pystray` source. Test extraction into a fresh folder.
 6. Push the reviewed source and a matching `v<version>` tag. The release workflow
