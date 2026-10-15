@@ -1,6 +1,6 @@
 # GitHub publication handoff
 
-Destination: https://github.com/n3w3r4/Deep-Noise
+Destination: https://github.com/n3w3r4/DeepNoise
 
 The local `origin` points to this repository. No push or public release is performed
 by preparing these files. Review `docs/LICENSE_AUDIT.md` before distributing binaries.

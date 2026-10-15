@@ -4,7 +4,7 @@
 2. Review `docs/LICENSE_AUDIT.md`, including the outstanding LiveKit source/relink
    issue. Keep artwork provenance in ATTRIBUTION.md current.
 3. Update `version.py` and CHANGELOG.md, commit the reviewed source, and verify
-   `origin` is `https://github.com/n3w3r4/Deep-Noise.git`. Never include the separate Krisp report/prototype.
+   `origin` is `https://github.com/n3w3r4/DeepNoise.git`. Never include the separate Krisp report/prototype.
 4. Run `python build.py`. If the installed app is running, use
    `python build.py --dist-dir dist/candidate` to avoid overwriting its files.
    After building, run `python scripts/verify_release.py dist/DeepNoise-0.1.0-win64.zip`

@@ -12,7 +12,7 @@
 
 ### Instalar
 
-1. Baixe `DeepNoise-<versão>-win64.zip` em [Releases](https://github.com/n3w3r4/Deep-Noise/releases) e descompacte.
+1. Baixe `DeepNoise-<versão>-win64.zip` em [Releases](https://github.com/n3w3r4/DeepNoise/releases) e descompacte.
 2. Opcional, para usar em outros apps: clique com o botão direito em `install-drivers.ps1` → *Executar com o PowerShell*,
    aceite os instaladores da VB-Audio e reinicie o Windows.
 3. Abra o `DeepNoise.exe`. Ele fica na bandeja; fechar a janela não encerra o app.

@@ -67,7 +67,7 @@
 
 ## Install
 
-1. Download `DeepNoise-<version>-win64.zip` from [Releases](https://github.com/n3w3r4/Deep-Noise/releases),
+1. Download `DeepNoise-<version>-win64.zip` from [Releases](https://github.com/n3w3r4/DeepNoise/releases),
    check it against `SHA256SUMS.txt`, and unzip it anywhere.
 2. Optional, for use in other apps: right-click `install-drivers.ps1` → *Run with PowerShell*,
    accept the VB-Audio installers, restart Windows.
@@ -87,8 +87,8 @@ For the virtual microphone and the incoming-audio cleaner: **VB-CABLE** and **VB
 ## Build from source
 
 ```powershell
-git clone https://github.com/n3w3r4/Deep-Noise
-cd Deep-Noise
+git clone https://github.com/n3w3r4/DeepNoise
+cd DeepNoise
 py -3.14 -m venv .venv
 .venv\Scripts\python.exe -m pip install --require-hashes -r requirements-lock.txt
 .venv\Scripts\python.exe scripts\fetch_deps.py     # DeepFilterNet plugin -> vendor\ (SHA-256 checked)
